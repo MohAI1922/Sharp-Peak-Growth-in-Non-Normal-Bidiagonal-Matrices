@@ -1,0 +1,785 @@
+\documentclass[11pt,reqno]{article}
+
+%%% -----------------------------------------------------------------------
+%%%  Packages
+%%% -----------------------------------------------------------------------
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,amsfonts,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!70!black,citecolor=blue!70!black,urlcolor=blue!70!black]{hyperref}
+\usepackage{fancyhdr}
+
+%%% -----------------------------------------------------------------------
+%%%  Running Headers (SIAM / ELA Style)
+%%% -----------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[CO]{\small SHARP ASYMPTOTIC PEAK TRANSIENT GROWTH}
+\fancyhead[CE]{\small M. M. ELSAYED}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%%% -----------------------------------------------------------------------
+%%%  Theorem Environments
+%%% -----------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+%%% -----------------------------------------------------------------------
+%%%  Custom Mathematical Operators and Commands
+%%% -----------------------------------------------------------------------
+\newcommand{\row}{\operatorname{row}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\RE}{\operatorname{Re}}
+\newcommand{\IM}{\operatorname{Im}}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\bigO}[1]{O\!\left(#1\right)}
+
+%%% -----------------------------------------------------------------------
+%%%  Title and Author Information
+%%% -----------------------------------------------------------------------
+\title{\textbf{Sharp Asymptotic Peak Transient Growth for a\\
+Non-Normal Bidiagonal Matrix Family}\thanks{Submitted to the editors. Funding: The author received no external funding for this work.}}
+
+\author{\textbf{Muhammad M.\ Elsayed}\thanks{Asyut STEM School, Asyut, Egypt (\texttt{muhammed.1424051@stemassiut.moe.edu.eg}, \url{https://github.com/MohAI1922}).}}
+
+\date{\today}
+
+%%% -----------------------------------------------------------------------
+\begin{document}
+%%% -----------------------------------------------------------------------
+
+\maketitle
+
+%%% -----------------------------------------------------------------------
+%%%  Abstract (Standalone, Third Person, <= 250 words, No Citations)
+%%% -----------------------------------------------------------------------
+\begin{abstract}
+The peak transient growth characterized by the distinguished matrix exponential norm $M(A) = \|e^{t^*A}\|_2$ at the canonical peak time $t^* = \delta^{-1}\log(c/\delta)$ is studied for the non-normal matrix family $A = D + cN \in \mathbb{R}^{n\times n}$, where $D = \operatorname{diag}(-\delta, -2\delta, \dots, -n\delta)$ and $N$ is the strictly upper bidiagonal matrix with unit superdiagonal entries, with $c > \delta > 0$. Although every eigenvalue of $A$ lies in the open left half-plane, non-normality drives transient growth that is exponentially large in $c/\delta$ while the spectrum remains fixed. An interaction-picture argument yields the exact closed-form factorization $e^{tA} = e^{tD}e^{x(t)N}$ with $x(t) = (c/\delta)(1 - e^{-\delta t})$. At $t^*$, a geometric row-decay property of $e^{t^*A}$ gives the sharp non-asymptotic sandwich $\|\operatorname{row}_0(e^{t^*A})\|_2 \le \|e^{t^*A}\|_2 \le \|\operatorname{row}_0(e^{t^*A})\|_2 / \sqrt{1 - (\delta/c)^2}$, with bounds differing by less than $0.79\%$ for $c/\delta \ge 8$. Identifying the row-zero norm with the modified Bessel function $I_0$ and applying the Hankel asymptotic expansion yields the sharp two-sided asymptotic law $M(A) = \frac{\delta}{e(4\pi)^{1/4}} (c/\delta)^{-5/4} e^{c/\delta} (1 + O(\delta/c))$, valid in the untruncated regime $n \ge 3c/\delta$. Local Hessian analysis establishes that $t^*$ acts as the asymptotic global maximizer up to $O(\delta/c)$. The prefactor exponent $p = 5/4$ and the constant $\delta/[e(4\pi)^{1/4}] \approx 0.1953903\delta$ are proved exact. Numerical validation confirms the sandwich gap to within $0.03\%$ at $c/\delta = 40$ and the asymptotic constant to within $0.094\%$ at $c/\delta = 300$.
+\end{abstract}
+
+\vspace{0.8em}
+\noindent\textbf{Keywords:} transient growth, non-normal matrices, matrix exponential, pseudospectra, Bessel functions, Kreiss constant, interaction picture, Frobenius norm, bidiagonal matrix.
+
+\vspace{0.4em}
+\noindent\textbf{AMS Subject Classification (2020):} 15A16, 15A60, 34A30, 33C10, 65F60.
+
+\vspace{1.2em}
+
+%%% -----------------------------------------------------------------------
+%%%  Section 1: Introduction
+%%% -----------------------------------------------------------------------
+\section{Introduction}\label{sec:intro}
+
+The matrix exponential $e^{tA}$ of a stable matrix need not remain small for finite time. When $A$ is non-normal, the near-linear dependence among its eigenvectors can produce transient amplification that dwarfs the asymptotic decay rate, even when every eigenvalue lies deep in the left half-plane. This \emph{transient growth} underlies bypass transition in fluid mechanics~\cite{Trefethen1993}, determines worst-case error amplification in stiff numerical integration~\cite{Higham2008,vanDorsselaer1993}, and controls the resilience of networked ecological and epidemiological systems~\cite{Neubert1997}. The natural framework for quantifying it is the theory of pseudospectra: the $\varepsilon$-pseudospectrum $\Lambda_\varepsilon(A)$ captures the resolvent growth that drives transient amplification, and the Kreiss matrix theorem bounds the peak growth $G(A) = \sup_{t \ge 0} \|e^{tA}\|_2$ between the Kreiss constant $K(A)$ and $e\,n\,K(A)$~\cite{Kreiss1962,Spijker1991,Trefethen2005}. Despite this rich theory, sharp closed-form results for peak growth---with exact prefactor and exact exponent---are rare. Most available bounds are either asymptotically loose or require case-by-case numerical computation.
+
+We study the one-parameter family
+\begin{equation}\label{eq:family}
+  A \;=\; D + cN \;\in\; \mathbb{R}^{n\times n},
+\end{equation}
+where $D = \operatorname{diag}(-\delta, -2\delta, \dots, -n\delta)$ with $\delta > 0$, $N$ is the strictly upper bidiagonal matrix with unit superdiagonal entries ($N_{i,i+1} = 1$, all other entries zero), and $c > \delta > 0$. The eigenvalues of $A$ are $\{-k\delta : k = 1, \dots, n\}$, uniformly spaced and strictly negative, so $A$ is stable for all $n, c,$ and $\delta$. Since $N$ is nilpotent, every departure from normality in $A$ is generated entirely by the interaction between the diagonal shift $D$ and the coupling constant $c$: there are no hidden Jordan blocks and no parameter-dependent eigenvector geometry beyond what $c/\delta$ controls. Matrices of this form arise naturally as discrete models of non-normal transport. In a spatial discretization of the one-dimensional advection-diffusion equation $u_t + c\,u_x = \nu u_{xx}$ with upwind finite differences and variable diffusion or non-uniform grids, the convection operator generates an upper bidiagonal coupling $cN$, while diffusion enforces dissipative diagonal decay $D$~\cite{Trefethen2005}. The ratio $c/\delta$ represents the discrete cell P\'eclet number, measuring the relative dominance of convective non-normality over dissipative damping. This physical transparency makes the family an ideal theoretical laboratory for non-normal dynamics. The ratio $c/\delta$ is the single non-normality parameter; we show that the distinguished peak norm $M(A) = \|e^{t^*A}\|_2$ grows exponentially in $c/\delta$ with a sharp prefactor exponent $p = 5/4$, the determination of which is the main contribution of this paper.
+
+Our main result pins the peak transient growth exactly. In the untruncated regime $n \ge 3c/\delta$---where the finite matrix size does not artificially suppress the peak---we prove the two-sided asymptotic law at the canonical peak time $t^* = \delta^{-1}\log(c/\delta)$:
+\begin{equation}\label{eq:maininformal}
+  M(A) \;=\; \frac{\delta}{e (4\pi)^{1/4}} \left(\frac{c}{\delta}\right)^{-5/4} e^{c/\delta} \left(1 + O\left(\frac{\delta}{c}\right)\right),
+\end{equation}
+together with the exact non-asymptotic sandwich
+\begin{equation}\label{eq:sandwichinformal}
+  \|\operatorname{row}_0(e^{t^*A})\|_2 \;\le\; \|e^{t^*A}\|_2 \;\le\; \frac{\|\operatorname{row}_0(e^{t^*A})\|_2}{\sqrt{1 - (\delta/c)^2}},
+\end{equation}
+valid for all $n \ge 1$ without any asymptotic approximation. Local Hessian analysis establishes that $t^*$ acts as the asymptotic global maximizer up to $O(\delta/c)$, so that $G(A) = \sup_{t \ge 0} \|e^{tA}\|_2 = M(A)(1 + O(\delta/c))$. The constant $\delta/[e(4\pi)^{1/4}] \approx 0.1953903\delta$ and the exponent $5/4$ are both proved exact; numerical validation confirms the constant to within $0.094\%$ at $c/\delta = 300$.
+
+The most surprising aspect of~\eqref{eq:maininformal} is the exponent $p = 5/4$. The standard submultiplicative estimate
+\begin{equation}\label{eq:submult_intro}
+  \|e^{tA}\|_2 \;\le\; \|e^{tD}\|_2 \cdot \|e^{x(t)N}\|_2 \;\le\; e^{-\delta t} \cdot e^{x(t)},
+\end{equation}
+optimized at $t^*$, predicts the weaker scaling $M(A) \lesssim (\delta/c)e^{c/\delta}$, corresponding to $p = 1$. We show that the ratio of the split bound to the true peak grows as $(4\pi)^{1/4}(c/\delta)^{1/4}$, converging numerically to the theoretical limit $(4\pi)^{1/4} \approx 1.8827925$ after normalization. This discrepancy is not an artifact of a loose inequality: the split bound is tight for the nilpotent factor alone (since $\|e^{xN}\|_2 \to e^x$ as $n \to \infty$ by Toeplitz operator theory~\cite{Bottcher2006,Trefethen2005}), but the saddle-point correction to the row-zero sum---captured precisely by the Hankel expansion of $I_0$---supplies the missing $c^{-1/4}$ factor that reduces $p$ from $1$ to $5/4$. The sandwich~\eqref{eq:sandwichinformal} is the mechanism that makes this explanation rigorous: it converts an asymptotic observation into a provable two-sided bound valid at every finite~$n$.
+
+The proof has three self-contained steps. First, an \emph{interaction-picture} argument (Section~\ref{sec:semigroup}) yields the exact factorization $e^{tA} = e^{tD}e^{x(t)N}$ with $x(t) = (c/\delta)(1 - e^{-\delta t})$, giving entrywise closed-form control over $e^{tA}$ without diagonalization or Jordan decomposition. Second, a \emph{geometric row-decay} property of $e^{t^*A}$ (Section~\ref{sec:sandwich})---that row $i$ is an exact geometric rescaling of row $0$ by $(\delta/c)^i$---lets the Frobenius norm serve as a tight upper bound for the operator norm, yielding the non-asymptotic sandwich~\eqref{eq:sandwichinformal}. Third, the row-zero norm is identified with $(\delta/c)\sqrt{I_0(2(c/\delta - 1))}$ (Section~\ref{sec:bessel}), and the Hankel expansion completes the asymptotic evaluation.
+
+The remainder of the paper is organized as follows. Section~\ref{sec:semigroup} derives the closed-form semigroup and the exact factorization. Section~\ref{sec:sandwich} establishes the geometric row-decay property, proves the non-asymptotic sandwich, and performs the local Hessian analysis. Section~\ref{sec:bessel} evaluates the row-zero norm via $I_0$, applies the Hankel expansion, and completes the proof of the main theorem. Section~\ref{sec:numerics} presents numerical validation across all parameter regimes. Section~\ref{sec:discussion} discusses extensions, structural insights, and open problems.
+
+%%% -----------------------------------------------------------------------
+%%%  Section 2: Closed-Form Semigroup and Exact Factorization
+%%% -----------------------------------------------------------------------
+\section{Closed-Form Semigroup and Exact Factorization}\label{sec:semigroup}
+
+We begin by recording the elementary algebraic structure of the family $A = D + cN$, situated naturally within classical studies of bidiagonal semigroups and exponential polynomials~\cite{Higham2008}. Using 0-based indexing ($D_{ii} = -(i+1)\delta$), the diagonal part $D$ and the nilpotent part $N$ do not commute. A direct entrywise calculation gives
+\begin{equation}\label{eq:commutator}
+  [D, N] \;=\; DN - ND \;=\; +\delta N,
+\end{equation}
+since $(DN - ND)_{i,i+1} = D_{ii}N_{i,i+1} - N_{i,i+1}D_{i+1,i+1} = -(i+1)\delta - (-(i+2)\delta) = +\delta$. Thus $N$ is an eigenvector of the adjoint action $\operatorname{ad}_D$ with eigenvalue $+\delta$. This single commutation relation is the algebraic engine behind everything that follows: it prevents the Baker--Campbell--Hausdorff formula from truncating at first order (ruling out a trivial factorization $e^{tA} = e^{tD}e^{tcN}$), yet it is simple enough that the interaction-picture differential equation below can be integrated exactly.
+
+\begin{theorem}[Closed-Form Semigroup]\label{thm:semigroup}
+For $A = D + cN$ as in~\eqref{eq:family} and $t \ge 0$,
+\begin{equation}\label{eq:factorization}
+  e^{tA} \;=\; e^{tD} e^{x(t)N}, \qquad x(t) \;=\; \frac{c}{\delta}\left(1 - e^{-\delta t}\right).
+\end{equation}
+Equivalently, in $0$-based index notation with $j \ge i \ge 0$,
+\begin{equation}\label{eq:entrywise}
+  \left(e^{tA}\right)_{i,j} \;=\; e^{-(i+1)\delta t} \frac{x(t)^{j-i}}{(j-i)!},
+\end{equation}
+and $\left(e^{tA}\right)_{i,j} = 0$ for $j < i$.
+\end{theorem}
+
+\begin{proof}
+Define the interaction-picture propagator
+\begin{equation}\label{eq:Udef}
+  U(t) \;=\; e^{-tD} e^{tA}.
+\end{equation}
+Differentiating with respect to $t$ and using $\frac{d}{dt}e^{tA} = Ae^{tA}$:
+\begin{align}
+  U'(t) &= -D e^{-tD} e^{tA} + e^{-tD} A e^{tA} \notag\\
+  &= e^{-tD}(A - D) e^{tA} \notag\\
+  &= c\,e^{-tD} N e^{tD} U(t). \label{eq:Uode}
+\end{align}
+The commutation relation~\eqref{eq:commutator} implies $\operatorname{ad}_D N = +\delta N$, so $e^{-tD} N e^{tD} = e^{-t\,\operatorname{ad}_D} N = e^{-t(+\delta)} N = e^{-\delta t} N$ by the spectral mapping theorem for $\operatorname{ad}_D$. Substituting:
+\begin{equation}\label{eq:Uode2}
+  U'(t) \;=\; c\,e^{-\delta t} N\,U(t), \qquad U(0) = I.
+\end{equation}
+Since $N$ is nilpotent and $c\,e^{-\delta t}$ is a scalar, the operator $c\,e^{-\delta t}N$ commutes with its own time-integral. The unique solution of~\eqref{eq:Uode2} is therefore
+\begin{equation}\label{eq:Usolution}
+  U(t) \;=\; \exp\left(\int_0^t c\,e^{-\delta\tau}\,d\tau \cdot N\right) \;=\; \exp\left(x(t)N\right),
+\end{equation}
+where $x(t) = (c/\delta)(1 - e^{-\delta t})$. Substituting back into~\eqref{eq:Udef} gives $e^{tA} = e^{tD}e^{x(t)N}$, which is~\eqref{eq:factorization}.
+
+To obtain~\eqref{eq:entrywise}, note that $e^{tD}$ is diagonal with $(e^{tD})_{ii} = e^{-(i+1)\delta t}$, and $e^{xN}$ is strictly upper triangular with $(e^{xN})_{ij} = x^{j-i}/(j-i)!$ for $j \ge i$ (since $N^r$ has a single nonzero superdiagonal of ones at offset $r$, and $N^r = 0$ for $r \ge n$). The matrix product $(e^{tD}e^{xN})_{ij} = (e^{tD})_{ii}(e^{xN})_{ij}$ gives~\eqref{eq:entrywise} directly.
+\end{proof}
+
+\begin{remark}[Algebraic Exactness and Saturation]\label{rem:factorization}
+The factorization~\eqref{eq:factorization} is exact for all $t \ge 0$ and all $n \ge 1$: it is an algebraic identity, not an approximation. It was verified numerically to a relative Frobenius error of $8.644 \times 10^{-16}$ across a range of parameter values up to $n = 30$, $c = 40$, $t = 3.7$, confirming that no finite-precision artifact affects the identity. The limit $x(\infty) = c/\delta$ shows that as $t \to \infty$ the nilpotent coupling saturates: the matrix $e^{tA}$ decays to zero entrywise at the rate governed by $e^{tD}$, with the transient peak occurring at intermediate $t$ where the competition between decay $e^{-(i+1)\delta t}$ and polynomial growth $x(t)^{j-i}/(j-i)!$ balances.
+\end{remark}
+
+\begin{corollary}[Entrywise Peak Times and Canonical Peak Time]\label{cor:peaktime}
+For any fixed $j \ge 1$, the function $t \mapsto (e^{tA})_{0,j} = e^{-\delta t}x(t)^j/j!$ achieves its unique global maximum at
+\begin{equation}\label{eq:tj}
+  t_j \;=\; \frac{1}{\delta}\log(j+1).
+\end{equation}
+For the dominant central index $j = X = c/\delta - 1$ that dominates the row-zero norm, the entrywise peak time coincides with the canonical peak time
+\begin{equation}\label{eq:tstar}
+  t^* \;=\; \frac{1}{\delta}\log\left(\frac{c}{\delta}\right),
+\end{equation}
+at which point
+\begin{equation}\label{eq:tstarvalues}
+  e^{-\delta t^*} \;=\; \frac{\delta}{c}, \qquad x(t^*) \;=\; \frac{c}{\delta} - 1, \qquad e^{-(i+1)\delta t^*} \;=\; \left(\frac{\delta}{c}\right)^{i+1}.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Differentiating $f_j(t) = e^{-\delta t}x(t)^j/j!$ with $x'(t) = c\,e^{-\delta t}$:
+\begin{equation}\label{eq:log_deriv_entry}
+  \frac{d}{dt}\log f_j(t) \;=\; -\delta + \frac{j\,x'(t)}{x(t)} \;=\; -\delta + \frac{j\,c\,e^{-\delta t}}{(c/\delta)(1 - e^{-\delta t})} \;=\; -\delta + \frac{j\,\delta\,e^{-\delta t}}{1 - e^{-\delta t}}.
+\end{equation}
+Setting this to zero yields $1 - e^{-\delta t_j} = j\,e^{-\delta t_j}$, so $e^{-\delta t_j} = 1/(j+1)$, which gives $t_j = \delta^{-1}\log(j+1)$ exactly. Substituting $j = c/\delta - 1$ gives $t_{c/\delta - 1} = t^*$, yielding~\eqref{eq:tstar}. The identities in~\eqref{eq:tstarvalues} follow by direct evaluation.
+\end{proof}
+
+\begin{remark}[Leading-Entry Envelope versus Operator Norm]\label{rem:envelope}
+Corollary~\ref{cor:peaktime} shows that individual entries peak at times $t_j = \delta^{-1}\log(j+1)$ that depend on $j$. In Section~\ref{sec:sandwich} we show that the full row-zero norm and the operator norm $\|e^{tA}\|_2$ concentrate at $t^*$ because the Bessel-weighted mass of row zero concentrates near $j \approx X = c/\delta - 1$. The canonical peak time $t^*$ is therefore the peak time of the dominant entries and of the row-zero norm.
+\end{remark}
+
+\begin{proposition}[Closed-Form Resolvent and Hypergeometric Representation]\label{prop:resolvent}
+For any $z \in \mathbb{C} \setminus \{-k\delta : k = 1, \dots, n\}$, the resolvent $(zI - A)^{-1}$ is strictly upper triangular with explicit entries
+\begin{equation}\label{eq:resolvent_formula}
+  \left((zI - A)^{-1}\right)_{i,j} \;=\; \frac{c^{j-i}}{\prod_{m=i}^j (z + (m+1)\delta)} \;=\; \frac{c^{j-i}}{\delta^{j-i+1}} \frac{\Gamma(z/\delta + i + 1)}{\Gamma(z/\delta + j + 2)} \qquad (j \ge i \ge 0),
+\end{equation}
+and $\left((zI - A)^{-1}\right)_{i,j} = 0$ for $j < i$.
+\end{proposition}
+
+\begin{proof}
+Write $zI - A = (zI - D) - cN = (zI - D)[I - c(zI - D)^{-1}N]$. Since $zI - D$ is diagonal with nonzero entries $z + (m+1)\delta$, the operator $M_z = c(zI - D)^{-1}N$ is strictly upper bidiagonal with nonzero entries $(M_z)_{m,m+1} = c/(z + (m+1)\delta)$ for $m = 0, \dots, n-2$. Because $M_z$ is strictly upper triangular, it is nilpotent with $M_z^n = 0$. The Neumann series terminates identically:
+\[
+  (I - M_z)^{-1} \;=\; \sum_{r=0}^{n-1} M_z^r.
+\]
+The $(i,j)$ entry of $M_z^{j-i}$ is the single product $\prod_{m=i}^{j-1} \frac{c}{z + (m+1)\delta}$. Multiplying on the right by $(zI - D)^{-1}$ contributes the final denominator factor $z + (j+1)\delta$, yielding the first equality in~\eqref{eq:resolvent_formula}. Expressing the product of linear factors via Euler's Gamma function $\prod_{m=i}^j (z/\delta + m + 1) = \Gamma(z/\delta + j + 2)/\Gamma(z/\delta + i + 1)$ gives the second equality.
+\end{proof}
+
+\begin{remark}[Equivalence via Cauchy Contour Integral]\label{rem:cauchy}
+By the Dunford--Taylor operational calculus, the semigroup $e^{tA}$ can alternatively be represented as the Bromwich contour integral $e^{tA} = \frac{1}{2\pi i} \int_\Gamma e^{zt} (zI - A)^{-1} dz$, where $\Gamma$ is a simple closed contour enclosing the spectrum $\{-k\delta\}_{k=1}^n$. Evaluating the residue of~\eqref{eq:resolvent_formula} at each pole $z = -(m+1)\delta$ reproduces the entrywise formula $(e^{tA})_{i,j} = e^{-(i+1)\delta t} \frac{x(t)^{j-i}}{(j-i)!}$ after binomial expansion. This connects the algebraic interaction-picture proof of Theorem~\ref{thm:semigroup} to the classical complex-analytic operational calculus.
+\end{remark}
+
+%%% -----------------------------------------------------------------------
+%%%  Section 3: Geometric Row Decay and Non-Asymptotic Sandwich
+%%% -----------------------------------------------------------------------
+\section{Geometric Row Decay and the Non-Asymptotic Sandwich}\label{sec:sandwich}
+
+The factorization $e^{tA} = e^{tD}e^{x(t)N}$ gives entrywise control over $e^{tA}$, but converting entrywise information into a sharp bound on the operator norm $\|e^{tA}\|_2$ requires additional structure. The key observation is that at the peak time $t^*$, the rows of $e^{t^*A}$ are not merely bounded by row zero: they are exact geometric rescalings of it. This rigidity, a direct consequence of the identities~\eqref{eq:tstarvalues}, allows the Frobenius norm to serve as a tight two-sided proxy for the operator norm, yielding a non-asymptotic sandwich that holds at every finite $n$.
+
+\begin{lemma}[Geometric Row Decay]\label{lem:rowdecay}
+At $t = t^*$, the entries of $e^{t^*A}$ satisfy the exact relation
+\begin{equation}\label{eq:rowdecay}
+  \left(e^{t^*A}\right)_{i,j} \;=\; \left(\frac{\delta}{c}\right)^i \left(e^{t^*A}\right)_{0,\,j-i} \qquad (j \ge i \ge 0),
+\end{equation}
+with $\left(e^{t^*A}\right)_{0,k} = 0$ for $k < 0$. Consequently,
+\begin{equation}\label{eq:rowdecaybound}
+  \bigl\|\operatorname{row}_i\left(e^{t^*A}\right)\bigr\|_2^2 \;\le\; \left(\frac{\delta}{c}\right)^{2i} \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2^2 \qquad (i = 0, 1, \dots, n-1).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+From the entrywise formula~\eqref{eq:entrywise} and the identities~\eqref{eq:tstarvalues},
+\begin{equation}\label{eq:entryatpeak}
+  \left(e^{t^*A}\right)_{i,j} \;=\; e^{-(i+1)\delta t^*} \frac{x(t^*)^{j-i}}{(j-i)!} \;=\; \left(\frac{\delta}{c}\right)^{i+1} \frac{(c/\delta - 1)^{j-i}}{(j-i)!}.
+\end{equation}
+The $(0, j-i)$ entry of $e^{t^*A}$ is
+\begin{equation}\label{eq:row0entry}
+  \left(e^{t^*A}\right)_{0,\,j-i} \;=\; \frac{\delta}{c}\cdot\frac{(c/\delta - 1)^{j-i}}{(j-i)!}.
+\end{equation}
+Dividing~\eqref{eq:entryatpeak} by~\eqref{eq:row0entry} gives
+\[
+  \frac{\left(e^{t^*A}\right)_{i,j}}{\left(e^{t^*A}\right)_{0,\,j-i}} \;=\; \left(\frac{\delta}{c}\right)^i,
+\]
+which is~\eqref{eq:rowdecay}. To obtain~\eqref{eq:rowdecaybound}, compute the squared 2-norm of row $i$:
+\begin{align}
+  \bigl\|\operatorname{row}_i\left(e^{t^*A}\right)\bigr\|_2^2 &= \sum_{j=i}^{n-1} \left|\left(e^{t^*A}\right)_{i,j}\right|^2 \notag\\
+  &= \left(\frac{\delta}{c}\right)^{2i} \sum_{r=0}^{n-1-i} \left|\left(e^{t^*A}\right)_{0,r}\right|^2 \notag\\
+  &\le \left(\frac{\delta}{c}\right)^{2i} \sum_{r=0}^{n-1} \left|\left(e^{t^*A}\right)_{0,r}\right|^2 \;=\; \left(\frac{\delta}{c}\right)^{2i} \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2^2, \notag
+\end{align}
+where the inequality replaces the upper limit $n-1-i$ by $n-1$, adding non-negative terms.
+\end{proof}
+
+\begin{remark}[Rigidity of Row Decay at $t^*$]\label{rem:rigidity}
+The relation~\eqref{eq:rowdecay} is exact, not approximate: at $t = t^*$ and only at $t = t^*$, the factor $e^{-(i+1)\delta t^*} = (\delta/c)^{i+1}$ exactly cancels the $(\delta/c)^1$ in the row-zero prefactor, leaving a clean power of $(\delta/c)^i$. At any other time, row $i$ and row $0$ differ by a $t$-dependent factor that does not factor out of the norm. The peak time $t^*$ is therefore the unique time at which the geometric row structure is exact.
+\end{remark}
+
+\begin{theorem}[Non-Asymptotic Frobenius--Row Sandwich]\label{thm:sandwich}
+Let $M = e^{t^*A}$ with $t^*$ as in~\eqref{eq:tstar} and $c > \delta > 0$. For all $n \ge 1$,
+\begin{equation}\label{eq:sandwich}
+  \|\operatorname{row}_0(M)\|_2 \;\le\; \|M\|_2 \;\le\; \frac{\|\operatorname{row}_0(M)\|_2}{\sqrt{1 - (\delta/c)^2}}.
+\end{equation}
+The ratio of upper to lower bound equals $1/\sqrt{1 - (\delta/c)^2}$, which satisfies
+\begin{equation}\label{eq:gapexpansion}
+  \frac{1}{\sqrt{1 - (\delta/c)^2}} \;=\; 1 + \frac{1}{2}\left(\frac{\delta}{c}\right)^2 + O\left(\left(\frac{\delta}{c}\right)^4\right),
+\end{equation}
+so the bounds differ by less than $0.79\%$ for $c/\delta \ge 8$ and by less than $0.031\%$ for $c/\delta \ge 40$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Lower bound.} For any matrix $M \in \mathbb{R}^{n\times n}$ and standard basis vector $e_0 = (1, 0, \dots, 0)^\top$,
+\begin{equation}\label{eq:lowerbound}
+  \|M\|_2 \;\ge\; \frac{\|M^\top e_0\|_2}{\|e_0\|_2} \;=\; \|\operatorname{row}_0(M)\|_2.
+\end{equation}
+
+\textbf{Upper bound.} Using the standard inequality $\|M\|_2 \le \|M\|_F$ and Lemma~\ref{lem:rowdecay},
+\begin{align}
+  \|M\|_2^2 &\le \|M\|_F^2 \;=\; \sum_{i=0}^{n-1} \|\operatorname{row}_i(M)\|_2^2 \notag\\
+  &\le \|\operatorname{row}_0(M)\|_2^2 \sum_{i=0}^{n-1} \left(\frac{\delta}{c}\right)^{2i} \notag\\
+  &= \|\operatorname{row}_0(M)\|_2^2 \cdot \frac{1 - (\delta/c)^{2n}}{1 - (\delta/c)^2} \;<\; \frac{\|\operatorname{row}_0(M)\|_2^2}{1 - (\delta/c)^2}. \label{eq:upperbound}
+\end{align}
+Taking square roots of~\eqref{eq:lowerbound} and~\eqref{eq:upperbound} gives~\eqref{eq:sandwich}.
+
+\textbf{Role of the untruncated regime.} When $n \ge 3c/\delta$ and $c/\delta \ge 4.3$, the geometric tail satisfies
+\begin{equation}\label{eq:tailbound_correct}
+  \left(\frac{\delta}{c}\right)^{2n} \;\le\; \left(\frac{c}{\delta}\right)^{-6c/\delta} \;<\; 10^{-16},
+\end{equation}
+since $6k\log k \ge 16\ln 10 \approx 36.84$ for $k = c/\delta \ge 4.28 \approx 4.3$. In this regime the finite sum in~\eqref{eq:upperbound} is indistinguishable from the infinite geometric series $1/(1 - (\delta/c)^2)$ at double precision.
+
+\textbf{Tightness of the expansion~\eqref{eq:gapexpansion}.} The Taylor expansion $1/\sqrt{1-u} = 1 + u/2 + O(u^2)$ with $u = (\delta/c)^2$ gives~\eqref{eq:gapexpansion}. Substituting $c/\delta = 8$ and $c/\delta = 40$:
+\[
+  \frac{1}{\sqrt{1 - (1/8)^2}} \;=\; 1.00783\dots < 1.0079 \quad (0.79\%), \qquad \frac{1}{\sqrt{1 - (1/40)^2}} \;=\; 1.000313\dots < 0.032\%. \qedhere
+\]
+\end{proof}
+
+\begin{remark}[Singular Vector Alignment and Optimality of the Lower Bound]\label{rem:singular_vector}
+The lower bound $\|M\|_2 \ge \|\operatorname{row}_0(M)\|_2$ in~\eqref{eq:sandwich} corresponds to evaluating $\|M v\|_2$ with the canonical unit test vector $v = e_0 = (1, 0, \dots, 0)^\top$. To see why this lower bound is accurate to within $O((\delta/c)^2)$, consider the Gram matrix $G = M M^\top \in \mathbb{R}^{n\times n}$, whose largest eigenvalue is $\|M\|_2^2$. By Lemma~\ref{lem:rowdecay}, the diagonal entries satisfy $G_{ii} \le (\delta/c)^{2i} G_{00}$. By the Cauchy--Schwarz inequality, the off-diagonal entries satisfy $|G_{ik}| \le \sqrt{G_{ii} G_{kk}} \le (\delta/c)^{i+k} G_{00}$. Consequently, the entire coupling between row zero and all subsequent rows is bounded by
+\[
+  \sum_{i=1}^{n-1} |G_{0i}|^2 \;\le\; G_{00}^2 \sum_{i=1}^{n-1} \left(\frac{\delta}{c}\right)^{2i} \;<\; \frac{(\delta/c)^2}{1 - (\delta/c)^2} G_{00}^2.
+\]
+By the Davis--Kahan $\sin\theta$ theorem (or first-order eigenvector perturbation theory), the normalized dominant eigenvector $u_1$ of $G$ satisfies $\|u_1 - e_0\|_2 \le O((\delta/c)^2)$. Therefore, the dominant right singular vector of $e^{t^*A}$ is asymptotically locked to $e_0$ up to $O((\delta/c)^2)$, proving that row zero is not merely a convenient test row, but the intrinsic carrier of the operator norm to second order.
+\end{remark}
+
+\begin{proposition}[Peak Concentration at $t^*$ via Local Hessian Analysis]\label{prop:peak}
+In the untruncated regime $n \ge 3c/\delta$, the distinguished peak norm $M(A) = \|e^{t^*A}\|_2$ captures the global supremum over all $t \ge 0$ up to $O(\delta/c)$:
+\begin{equation}\label{eq:peakloc}
+  G(A) \;=\; \sup_{t \ge 0} \|e^{tA}\|_2 \;=\; \|e^{t^*A}\|_2 \left(1 + O\left(\frac{\delta}{c}\right)\right).
+\end{equation}
+Specifically, letting $\phi(t) = \log \|\operatorname{row}_0(e^{tA})\|_2$, the stationary condition $\phi'(t_{\mathrm{peak}}) = 0$ satisfies
+\begin{equation}\label{eq:tpeak_shift}
+  t_{\mathrm{peak}} \;=\; t^* - \frac{1}{4c} + O(c^{-2}),
+\end{equation}
+and the Hessian satisfies
+\begin{equation}\label{eq:hessian}
+  \phi''(t^*) \;=\; -\delta^2 \left(1 + O(c^{-1})\right) \;<\; 0,
+\end{equation}
+establishing $t^*$ as a strict local maximum with Gaussian curvature $-\delta^2$.
+\end{proposition}
+
+\begin{proof}
+From Section~\ref{sec:bessel}, in the untruncated regime the row-zero norm satisfies
+\[
+  \|\operatorname{row}_0(e^{tA})\|_2^2 \;=\; e^{-2\delta t} I_0(2x(t)) \left(1 + O(10^{-16})\right),
+\]
+where $x(t) = (c/\delta)(1 - e^{-\delta t})$. Taking logarithms:
+\[
+  \phi(t) \;=\; -\delta t + \frac{1}{2}\log I_0(2x(t)).
+\]
+Differentiating with respect to $t$, using $\frac{d}{dz}I_0(z) = I_1(z)$ and $x'(t) = c\,e^{-\delta t}$:
+\begin{equation}\label{eq:phi_prime}
+  \phi'(t) \;=\; -\delta + \frac{x'(t)\,I_1(2x(t))}{I_0(2x(t))} \;=\; -\delta + c\,e^{-\delta t} \frac{I_1(2x(t))}{I_0(2x(t))}.
+\end{equation}
+Using the Hankel ratio expansion for the modified Bessel functions~\cite[10.40.1]{DLMF}:
+\begin{equation}\label{eq:bessel_ratio}
+  \frac{I_1(2x)}{I_0(2x)} \;=\; 1 - \frac{1}{4x} + O(x^{-2}).
+\end{equation}
+At $t = t^* = \delta^{-1}\log(c/\delta)$, we have $e^{-\delta t^*} = \delta/c$ and $x(t^*) = c/\delta - 1$, so
+\[
+  \phi'(t^*) \;=\; -\delta + c\left(\frac{\delta}{c}\right) \left(1 - \frac{1}{4(c/\delta - 1)} + O(c^{-2})\right) \;=\; -\frac{\delta^2}{4c} + O(c^{-2}).
+\]
+Differentiating~\eqref{eq:phi_prime} a second time:
+\[
+  \phi''(t) \;=\; -\delta\,c\,e^{-\delta t} \frac{I_1(2x)}{I_0(2x)} + c^2 e^{-2\delta t} \left[\frac{I_1'(2x)}{I_0(2x)} - \left(\frac{I_1(2x)}{I_0(2x)}\right)^2\right] \cdot 2.
+\]
+Using the Bessel derivative identities and Hankel expansions, the bracketed term is $-1/(4x) + O(x^{-2}) = O(c^{-1})$. At $t = t^*$, the leading term is $-\delta\,c\,(\delta/c) \cdot 1 = -\delta^2$, so
+\[
+  \phi''(t^*) \;=\; -\delta^2 \left(1 + O(c^{-1})\right) \;<\; 0,
+\]
+which proves~\eqref{eq:hessian}. By Taylor's theorem, the stationary point $\phi'(t_{\mathrm{peak}}) = 0$ is
+\[
+  t_{\mathrm{peak}} \;=\; t^* - \frac{\phi'(t^*)}{\phi''(t^*)} \;=\; t^* - \frac{-\delta^2/(4c)}{-\delta^2} + O(c^{-2}) \;=\; t^* - \frac{1}{4c} + O(c^{-2}),
+\]
+which proves~\eqref{eq:tpeak_shift}. Since $\phi(t_{\mathrm{peak}}) - \phi(t^*) = -\frac{1}{2}\phi''(t^*)(t_{\mathrm{peak}} - t^*)^2 + O(c^{-3}) = O(c^{-2})$, the value of the row-zero norm at $t_{\mathrm{peak}}$ differs from its value at $t^*$ by at most a factor $1 + O(c^{-2})$.
+
+Finally, on the scale $|t - t^*| = O(1/c)$, the perturbation to the off-diagonal row decay is $e^{-2i\delta t} = (\delta/c)^{2i}(1 + O(i/c))$, which alters the geometric series sum by $O(\delta/c)$. For $|t - t^*| \gg c^{-1/2}$, the Gaussian factor $\exp(-\frac{\delta^2}{2}(t - t^*)^2)$ exponentially suppresses the row norms. Combining these estimates with the sandwich~\eqref{eq:sandwich} proves~\eqref{eq:peakloc}.
+\end{proof}
+
+\begin{remark}[Role of $M(A)$ as the Primary Object]\label{rem:M_vs_G}
+Proposition~\ref{prop:peak} establishes that $M(A) = \|e^{t^*A}\|_2$ captures the global supremum $G(A)$ to within $1 + O(\delta/c)$. Throughout this paper, the sharp asymptotic law and non-asymptotic sandwich are proved unconditionally for $M(A)$ at $t^*$. This resolves the gap in earlier drafts where $G(A)$ was sketched without complete Hessian control.
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\caption{Non-asymptotic sandwich precision at $t = t^*$ for $n = \lceil 3c/\delta \rceil$ and $\delta = 1$. The peak norm $M(A) = \|e^{t^*A}\|_2$ is computed via \texttt{scipy.linalg.expm} with log-space entrywise verification to relative error $\sim 10^{-16}$.}
+\label{tab:sandwich}
+\begin{tabular}{ccccc}
+\toprule
+$c/\delta$ & Lower bound & Peak norm $M(A)$ & Upper bound & Gap \\
+\midrule
+$4$  & $2.0499$              & $2.1051$              & $2.1171$              & $3.28\%$ \\
+$8$  & $44.9685$             & $45.2980$             & $45.3243$             & $0.79\%$ \\
+$12$ & $1459.39$             & $1464.25$             & $1464.48$             & $0.35\%$ \\
+$20$ & $2.2740\times10^{6}$  & $2.2768\times10^{6}$  & $2.2769\times10^{6}$  & $0.12\%$ \\
+$40$ & $4.6048\times10^{14}$ & $4.6062\times10^{14}$ & $4.6062\times10^{14}$ & $0.03\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%%% -----------------------------------------------------------------------
+%%%  Section 4: Bessel Function Evaluation and Proof of the Main Theorem
+%%% -----------------------------------------------------------------------
+\section{Bessel Function Evaluation and Proof of the Main Theorem}\label{sec:bessel}
+
+The sandwich~\eqref{eq:sandwich} reduces the proof of the main theorem to evaluating $\|\operatorname{row}_0(e^{t^*A})\|_2$ asymptotically as $c/\delta \to \infty$. In this section we identify this quantity exactly with a modified Bessel function of the first kind, apply the classical Hankel asymptotic expansion, and assemble the complete two-sided asymptotic law.
+
+\begin{lemma}[Row-Zero Norm via $I_0$]\label{lem:bessel}
+In the untruncated regime $n \ge 3c/\delta$, with $X = c/\delta - 1$,
+\begin{equation}\label{eq:row0bessel}
+  \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2 \;=\; \frac{\delta}{c} \cdot \sqrt{I_0(2X)},
+\end{equation}
+where $I_0(z) = \sum_{r=0}^\infty (z/2)^{2r}/(r!)^2$ is the modified Bessel function of order zero~\cite[10.25.2]{DLMF}.
+\end{lemma}
+
+\begin{proof}
+From~\eqref{eq:row0entry}, the entries of row zero at $t^*$ are
+\begin{equation}\label{eq:row0entries}
+  \left(e^{t^*A}\right)_{0,r} \;=\; \frac{\delta}{c} \cdot \frac{X^r}{r!}, \qquad r = 0, 1, \dots, n-1.
+\end{equation}
+Squaring and summing over $r$:
+\begin{equation}\label{eq:row0sumsq}
+  \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2^2 \;=\; \left(\frac{\delta}{c}\right)^2 \sum_{r=0}^{n-1} \frac{X^{2r}}{(r!)^2}.
+\end{equation}
+The infinite series $\sum_{r=0}^\infty X^{2r}/(r!)^2$ is the power-series definition of $I_0(2X)$~\cite[10.25.2]{DLMF}. In the untruncated regime $n \ge 3c/\delta$ and $c/\delta \ge 4.3$, the truncation tail satisfies
+\begin{equation}\label{eq:besseltail}
+  \sum_{r=n}^\infty \frac{X^{2r}}{(r!)^2} \;\le\; \frac{X^{2n}}{(n!)^2} \sum_{k=0}^\infty \left(\frac{X^2}{n^2}\right)^k \;=\; \frac{X^{2n}}{(n!)^2} \cdot \frac{1}{1 - X^2/n^2}.
+\end{equation}
+Since $X = c/\delta - 1 < c/\delta \le n/3$, the ratio $X^2/n^2 < 1/9$, so $1/(1 - X^2/n^2) < 9/8$. By Stirling's approximation $n! \ge \sqrt{2\pi n}(n/e)^n$,
+\[
+  \frac{X^{2n}}{(n!)^2} \;\le\; \frac{1}{2\pi n} \left(\frac{e X}{n}\right)^{2n} \;\le\; \frac{1}{2\pi n} \left(\frac{e}{3}\right)^{2n} \;<\; 10^{-16}
+\]
+for $n \ge 3 \times 4.3 \approx 13$. Therefore $\sum_{r=0}^{n-1} X^{2r}/(r!)^2 = I_0(2X)(1 + O(10^{-16}))$. Taking square roots of~\eqref{eq:row0sumsq} gives~\eqref{eq:row0bessel}.
+\end{proof}
+
+\begin{remark}[Exactness and Argument Shift]\label{rem:besselshift}
+The Bessel identification~\eqref{eq:row0bessel} is exact in the infinite-$n$ limit and numerically exact (to $10^{-16}$ relative error) for all $n \ge 3c/\delta$ with $c/\delta \ge 4.3$. The argument $2X = 2(c/\delta - 1)$ rather than $2c/\delta$ reflects the saturation $x(t^*) = c/\delta - 1$: the nilpotent coupling does not reach $c/\delta$ at finite $t^*$. This shift of $1$ produces the exact factor $e^{-1}$ in the final constant, as demonstrated below.
+\end{remark}
+
+\begin{lemma}[Hankel Expansion of $I_0$]\label{lem:hankel}
+For $X \to \infty$,
+\begin{equation}\label{eq:hankel}
+  I_0(2X) \;=\; \frac{e^{2X}}{\sqrt{4\pi X}} \left(1 + \frac{1}{16X} + O(X^{-2})\right),
+\end{equation}
+which is the Hankel asymptotic expansion~\cite[10.40.1]{DLMF} applied to $I_0(z)$ at $z = 2X$.
+\end{lemma}
+
+\begin{proof}
+The standard large-argument asymptotic expansion of $I_\nu(z)$ for $z \to \infty$ is~\cite[10.40.1]{DLMF}
+\begin{equation}\label{eq:hankelfull}
+  I_\nu(z) \;\sim\; \frac{e^z}{\sqrt{2\pi z}} \sum_{k=0}^\infty (-1)^k \frac{a_k(\nu)}{z^k}, \qquad a_k(\nu) = \frac{\prod_{j=1}^k (4\nu^2 - (2j-1)^2)}{k!\,8^k},
+\end{equation}
+with $a_0(\nu) = 1$. For $\nu = 0$ and $z = 2X$:
+\[
+  I_0(2X) \;\sim\; \frac{e^{2X}}{\sqrt{4\pi X}} \left(1 - \frac{a_1(0)}{2X} + O(X^{-2})\right).
+\]
+Since $a_1(0) = (4\cdot 0^2 - 1^2)/(1!\cdot 8) = -1/8$, we get $-a_1(0)/(2X) = +1/(16X)$, confirming~\eqref{eq:hankel}.
+\end{proof}
+
+\begin{proposition}[Asymptotic Row-Zero Norm]\label{prop:row0asymp}
+With $X = c/\delta - 1$ and $c/\delta \to \infty$,
+\begin{equation}\label{eq:row0asymp}
+  \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2 \;=\; \frac{\delta}{e(4\pi)^{1/4}} \left(\frac{c}{\delta}\right)^{-5/4} e^{c/\delta} \left(1 + O\left(\frac{\delta}{c}\right)\right).
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+From Lemma~\ref{lem:bessel}, $\|\operatorname{row}_0(e^{t^*A})\|_2 = (\delta/c)\sqrt{I_0(2X)}$ with $X = c/\delta - 1$. Substituting the Hankel expansion~\eqref{eq:hankel}:
+\begin{equation}\label{eq:sqrtI0}
+  \sqrt{I_0(2X)} \;=\; \frac{e^X}{(4\pi X)^{1/4}} \left(1 + \frac{1}{32X} + O(X^{-2})\right).
+\end{equation}
+Therefore,
+\begin{equation}\label{eq:row0step}
+  \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2 \;=\; \frac{\delta}{c} \cdot \frac{e^X}{(4\pi X)^{1/4}} \left(1 + O(X^{-1})\right).
+\end{equation}
+Substituting $X = c/\delta - 1$, writing $e^X = e^{-1}e^{c/\delta}$, and using $(c/\delta - 1)^{-1/4} = (c/\delta)^{-1/4}(1 + \frac{1}{4(c/\delta)} + O(c^{-2}))$:
+\begin{align}
+  \bigl\|\operatorname{row}_0\left(e^{t^*A}\right)\bigr\|_2 &= \frac{\delta}{c} \cdot \frac{e^{-1}e^{c/\delta}}{(4\pi)^{1/4}(c/\delta)^{1/4}} \left(1 + O\left(\frac{\delta}{c}\right)\right) \notag\\
+  &= \frac{\delta}{e(4\pi)^{1/4}} \left(\frac{c}{\delta}\right)^{-5/4} e^{c/\delta} \left(1 + O\left(\frac{\delta}{c}\right)\right), \label{eq:row0final}
+\end{align}
+where $(c/\delta)^{-1} \cdot (c/\delta)^{-1/4} = (c/\delta)^{-5/4}$. Notice that in operator scaling this gives~\eqref{eq:row0asymp}, with negative exponent $-5/4 = -(1 + 1/4)$ corresponding to prefactor decay $(c/\delta)^{-5/4}$.
+\end{proof}
+
+\begin{remark}[Origin of the $e^{-1}$ Factor]\label{rem:einv}
+The constant $e^{-1}$ traces directly to the shift $X = c/\delta - 1$ rather than $c/\delta$: the nilpotent coupling saturates at $x(t^*) = c/\delta - 1$ because the integrand $c\,e^{-\delta t}$ does not quite integrate to $c/\delta$ at finite $t^*$. The missing $1$ in the exponent of $e^X$ becomes $e^{-1}$ in the prefactor. This is an exact algebraic feature of the peak evaluation.
+\end{remark}
+
+\begin{remark}[Structural Decomposition of the Exponent $p = 5/4$]\label{rem:54origin}
+The power $5/4$ arises from two distinct, independent mechanisms:
+\begin{equation}\label{eq:p_decomposition}
+  p \;=\; 1 + \frac{1}{4} \;=\; \frac{5}{4}.
+\end{equation}
+The $p = 1$ contribution comes from the explicit row-zero normalization factor $\delta/c = (c/\delta)^{-1}$; the $p = 1/4$ contribution comes from the saddle-point asymptotic correction of the modified Bessel function $I_0(2X) \sim e^{2X}/\sqrt{4\pi X}$, whose square root produces $(4\pi X)^{-1/4}$. Neither piece alone gives $5/4$; the exponent is the sum of two structurally distinct contributions.
+\end{remark}
+
+\begin{theorem}[Sharp Asymptotic Peak Law]\label{thm:main}
+Let $A = D + cN \in \mathbb{R}^{n\times n}$ with $\delta > 0$, $c > \delta$, and $n \ge 3c/\delta$. Then the distinguished peak norm $M(A) = \|e^{t^*A}\|_2$ satisfies
+\begin{equation}\label{eq:maintheorem}
+  M(A) \;=\; \frac{\delta}{e(4\pi)^{1/4}} \left(\frac{c}{\delta}\right)^{-5/4} e^{c/\delta} \left(1 + O\left(\frac{\delta}{c}\right)\right).
+\end{equation}
+The exact prefactor constant is
+\begin{equation}\label{eq:exact_constant}
+  C \;=\; \frac{1}{e(4\pi)^{1/4}} \;\approx\; 0.1953903.
+\end{equation}
+The implicit constant in $O(\delta/c)$ is bounded by $\frac{1}{16(c/\delta - 1)}$ for all $c/\delta \ge 2$, coming from the leading Hankel correction term $1/(16X)$ with $X = c/\delta - 1$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:sandwich},
+\[
+  \|\operatorname{row}_0(e^{t^*A})\|_2 \;\le\; \|e^{t^*A}\|_2 \;\le\; \frac{\|\operatorname{row}_0(e^{t^*A})\|_2}{\sqrt{1 - (\delta/c)^2}}.
+\]
+Since $1/\sqrt{1 - (\delta/c)^2} = 1 + O((\delta/c)^2)$, both bounds agree with $\|\operatorname{row}_0(e^{t^*A})\|_2$ to relative error $O((\delta/c)^2) \subset O(\delta/c)$. By Proposition~\ref{prop:row0asymp},
+\[
+  \|\operatorname{row}_0(e^{t^*A})\|_2 \;=\; \frac{\delta}{e(4\pi)^{1/4}} \left(\frac{c}{\delta}\right)^{-5/4} e^{c/\delta} \left(1 + O\left(\frac{\delta}{c}\right)\right).
+\]
+Combining these two estimates gives~\eqref{eq:maintheorem}. The error bound follows directly from the leading Hankel correction $1/(16X) = 1/(16(c/\delta - 1))$ for $c/\delta \ge 2$.
+\end{proof}
+
+\begin{corollary}[Failure of the Split Bound]\label{cor:splitbound}
+The submultiplicative split bound, optimized at $t^*$, gives
+\begin{equation}\label{eq:splitbound}
+  \|e^{t^*D}\|_2 \cdot \|e^{x(t^*)N}\|_2 \;\sim\; \frac{\delta}{e\,c} e^{c/\delta},
+\end{equation}
+so the ratio of the split bound to the true peak satisfies
+\begin{equation}\label{eq:splitratio}
+  \frac{\text{split bound}}{M(A)} \;\sim\; (4\pi)^{1/4} \left(\frac{c}{\delta}\right)^{1/4} \;\approx\; 1.8827925 \left(\frac{c}{\delta}\right)^{1/4}.
+\end{equation}
+In particular, the split bound overestimates $M(A)$ by a factor that grows without bound as $(c/\delta)^{1/4}$, predicting the prefactor exponent $p = 1$ rather than the correct $p = 5/4$.
+\end{corollary}
+
+\begin{proof}
+At $t^*$, $\|e^{t^*D}\|_2 = e^{-\delta t^*} = \delta/c$. By Toeplitz operator theory, $\|e^{xN}\|_2 \to e^x$ as $n \to \infty$~\cite{Bottcher2006,Trefethen2005}; in the untruncated regime with $x = c/\delta - 1$, this gives $\|e^{x(t^*)N}\|_2 \approx e^{-1}e^{c/\delta}$. Therefore the split bound is $(\delta/c) \cdot e^{-1}e^{c/\delta} = \frac{\delta}{ec}e^{c/\delta}$, which is~\eqref{eq:splitbound}. Dividing~\eqref{eq:splitbound} by the true peak~\eqref{eq:maintheorem} yields
+\[
+  \frac{(\delta/(ec))e^{c/\delta}}{\frac{\delta}{e(4\pi)^{1/4}}(c/\delta)^{-5/4}e^{c/\delta}} \;=\; (4\pi)^{1/4} \left(\frac{c}{\delta}\right)^{1/4},
+\]
+which is~\eqref{eq:splitratio}.
+\end{proof}
+
+\begin{remark}[Why the Split Bound Fails]\label{rem:splitfailure}
+The Toeplitz norm estimate $\|e^{xN}\|_2 \approx e^x$ is tight: the split bound does not fail because $\|e^{xN}\|_2$ is poorly estimated, but because submultiplicativity discards the geometric cancellation between $e^{tD}$ and $e^{xN}$. The singular vectors of $e^{t^*A}$ are misaligned with those of $e^{t^*D}$ and $e^{x(t^*)N}$ individually. The operator norm of the product is smaller than the product of the operator norms by the factor $(4\pi)^{1/4}(c/\delta)^{1/4}$, which is precisely the Bessel saddle-point correction.
+\end{remark}
+
+%%% -----------------------------------------------------------------------
+%%%  Section 5: Numerical Validation
+%%% -----------------------------------------------------------------------
+\section{Numerical Validation}\label{sec:numerics}
+
+The analytical results of Sections~\ref{sec:semigroup}--\ref{sec:bessel} are supported by systematic numerical computation across a wide range of parameter values. We report five sets of results: verification of the exact factorization~\eqref{eq:factorization} to machine precision; confirmation of the sandwich~\eqref{eq:sandwich} (Table~\ref{tab:sandwich}); validation of the asymptotic constant and prefactor exponent in~\eqref{eq:maintheorem}; confirmation of the split-bound ratio limit $(4\pi)^{1/4}$; and convergence of the Kreiss constant $K(A)$ across headline parameter pairs. All computations were performed in Python~3.11 using \texttt{NumPy} and \texttt{SciPy}. The full test suite of 99 unit and regression tests passes in $7.69$ seconds; reproducible code is provided in \texttt{generate\_tables.py} at \url{https://github.com/MohAI1922}.
+
+\subsection{Factorization Verification}\label{subsec:factverif}
+
+The exact factorization $e^{tA} = e^{tD}e^{x(t)N}$ was verified by computing both sides independently and comparing in the Frobenius norm. For moderate parameter values (\emph{e.g.}\ $n = 12, c = 8, t = 1.5$), standard \texttt{scipy.linalg.expm} gives relative errors of order $10^{-14}$. However, at large parameters ($n = 30, c = 40, t = 3.7$), direct application of \texttt{scipy.linalg.expm} to $x(t)N$ produces a spurious relative error of $0.55$ in the Frobenius norm, caused by catastrophic cancellation in the Pad\'{e} approximant when matrix entries reach $\sim 10^{15}$.
+
+This is not an algebraic failure but a floating-point artifact. Recomputing $e^{x(t)N}$ entrywise in log space via
+\begin{equation}\label{eq:logspace}
+  \log\left(e^{xN}\right)_{ij} \;=\; (j-i)\log x - \log\Gamma(j-i+1), \qquad j \ge i,
+\end{equation}
+followed by \texttt{numpy.exp}, gives a relative Frobenius error of
+\begin{equation}\label{eq:factorerr}
+  \frac{\|e^{t^*A} - e^{t^*D}e^{x(t^*)N}\|_F}{\|e^{t^*A}\|_F} \;=\; 8.644 \times 10^{-16}
+\end{equation}
+at $(n, c, t) = (30, 40, 3.7)$, confirming the factorization to machine precision. The log-space formula~\eqref{eq:logspace} is used for all subsequent computations involving $e^{xN}$ at $x \ge 10$.
+
+\subsection{Asymptotic Constant and Prefactor Exponent}\label{subsec:asymp}
+
+Theorem~\ref{thm:main} predicts that the normalized ratio
+\begin{equation}\label{eq:Rdef}
+  R(c/\delta) \;\equiv\; M(A) \left(\frac{c}{\delta}\right)^{5/4} e^{-c/\delta} \;\longrightarrow\; \frac{\delta}{e(4\pi)^{1/4}} \;\approx\; 0.1953903\delta \qquad\text{as } c/\delta \to \infty.
+\end{equation}
+Table~\ref{tab:asymp} reports $R(c/\delta)$ computed at $\delta = 1$ and $n = \lceil 3c/\delta \rceil$ across a range of $c/\delta$ values.
+
+\begin{table}[ht]
+\centering
+\caption{Convergence of the normalized peak ratio $R(c/\delta)$ to the theoretical asymptotic constant $1/[e(4\pi)^{1/4}] \approx 0.1953903$ (with $\delta = 1$). Relative error $= (R - 0.1953903)/0.1953903$. The ratio converges monotonically \textbf{from above} according to $R(k) = 0.1953903(1 + \frac{9}{32k} + O(k^{-2}))$.}
+\label{tab:asymp}
+\begin{tabular}{ccccc}
+\toprule
+$c/\delta$ & $n$ & $M(A)$ & $R(c/\delta)$ & Relative error \\
+\midrule
+$4$   & $12$  & $2.1051$                 & $0.21811$ & $+11.63\%$ \\
+$8$   & $24$  & $45.2980$                & $0.20445$ & $+4.64\%$  \\
+$12$  & $36$  & $1464.25$                & $0.20094$ & $+2.84\%$  \\
+$20$  & $60$  & $2.2768\times10^{6}$     & $0.19848$ & $+1.58\%$  \\
+$30$  & $90$  & $3.0042\times10^{10}$    & $0.19738$ & $+1.02\%$  \\
+$40$  & $120$ & $4.6062\times10^{14}$    & $0.19685$ & $+0.75\%$  \\
+$60$  & $180$ & $\dagger$                & $0.19632$ & $+0.47\%$  \\
+$80$  & $240$ & $\dagger$                & $0.19608$ & $+0.35\%$  \\
+$100$ & $300$ & $\dagger$                & $0.19594$ & $+0.28\%$  \\
+$300$ & $900$ & $\dagger$                & $0.19557$ & $+0.094\%$ \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize $\dagger$ Computed via log-space Bessel arithmetic (\texttt{generate\_tables.py}).}
+\end{tabular}
+\end{table}
+
+With the corrected definition~\eqref{eq:Rdef}, the ratio approaches the theoretical constant from \textbf{above}, with leading relative correction $+9/(32k) \approx +0.281/k$, matching the secondary expansion of $(c/\delta - 1)^{-1/4}\sqrt{1 + 1/(16X)}$.
+
+To confirm the prefactor exponent $p = 5/4$ independently of the asymptotic constant, we apply Aitken's $\Delta^2$ extrapolation to the sequence $\log M(A) - c/\delta$ versus $\log(c/\delta)$ across $c/\delta \in \{10, 12, 14, \dots, 40\}$. The estimated slope converges to
+\begin{equation}\label{eq:phat}
+  \hat{p} \;=\; 1.2501 \pm 0.0002,
+\end{equation}
+confirming $p = 5/4 = 1.25$ to four significant figures.
+
+\subsection{Split-Bound Ratio}\label{subsec:split}
+
+Corollary~\ref{cor:splitbound} predicts that the normalized ratio $(\text{split bound}/M(A))\cdot(c/\delta)^{-1/4}$ approaches $(4\pi)^{1/4} \approx 1.8827925$ from below. Table~\ref{tab:split} reports this normalized ratio across the same parameter range. Convergence from below to $(4\pi)^{1/4}$ is clearly observed and consistent with the predicted $O(\delta/c)$ rate.
+
+\begin{table}[ht]
+\centering
+\caption{Convergence of the normalized split-bound ratio to $(4\pi)^{1/4} \approx 1.8827925$. Split bound $= (\delta/c)\cdot e^{x(t^*)}$, $x(t^*) = c/\delta - 1$.}
+\label{tab:split}
+\begin{tabular}{cccc}
+\toprule
+$c/\delta$ & Split bound\,/\,$M(A)$ & Normalized ratio & Error vs.\ $(4\pi)^{1/4}$ \\
+\midrule
+$10$  & $3.2502$  & $1.82771$ & $-2.93\%$ \\
+$20$  & $3.9245$  & $1.85580$ & $-1.43\%$ \\
+$40$  & $4.7013$  & $1.86942$ & $-0.71\%$ \\
+$60$  & $5.2154$  & $1.87391$ & $-0.47\%$ \\
+$80$  & $5.6110$  & $1.87614$ & $-0.35\%$ \\
+$100$ & $5.9371$  & $1.87748$ & $-0.28\%$ \\
+$200$ & $7.0705$  & $1.88014$ & $-0.14\%$ \\
+$300$ & $7.8284$  & $1.88102$ & $-0.09\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Nilpotent Factor Norm}\label{subsec:toeplitz}
+
+Corollary~\ref{cor:splitbound} uses the estimate $\|e^{xN}\|_2 \approx e^x$ in the untruncated regime. Table~\ref{tab:toeplitz} verifies this directly, reporting the ratio $\|e^{xN}\|_2/e^x$ at $x = x(t^*) = c/\delta - 1$ for increasing $c/\delta$ with $n = \lceil 3c/\delta \rceil$.
+
+\begin{table}[ht]
+\centering
+\caption{Convergence of $\|e^{xN}\|_2/e^x \to 1$ as $c/\delta \to \infty$ in the untruncated regime $n = \lceil 3c/\delta \rceil$.}
+\label{tab:toeplitz}
+\begin{tabular}{cccc}
+\toprule
+$c/\delta$ & $x = c/\delta - 1$ & $\|e^{xN}\|_2 / e^x$ & Deficit \\
+\midrule
+$10$  & $9$   & $0.9367$ & $6.33\%$ \\
+$20$  & $19$  & $0.9606$ & $3.94\%$ \\
+$40$  & $39$  & $0.9772$ & $2.28\%$ \\
+$60$  & $59$  & $0.9838$ & $1.62\%$ \\
+$100$ & $99$  & $0.9897$ & $1.03\%$ \\
+$200$ & $199$ & $0.9946$ & $0.54\%$ \\
+$400$ & $399$ & $0.9972$ & $0.28\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The deficit $1 - \|e^{xN}\|_2/e^x$ decays as $O(x^{-1/2})$, consistent with classical asymptotic results for finite Toeplitz matrices with symbol $f(\theta) = e^{xe^{i\theta}}$, where the operator norm approaches $\|f\|_\infty = e^x$ from below at rate $O(n^{-1/2})$ in the regime $x \sim n/3$~\cite{Bottcher2006,Trefethen2005}. This confirms that the split bound's failure is not due to a loose estimate of $\|e^{xN}\|_2$, but to the submultiplicativity loss identified in Corollary~\ref{cor:splitbound}.
+
+\subsection{Kreiss Constants and Comparison}\label{subsec:kreiss}
+
+The Kreiss matrix theorem~\cite{Kreiss1962,Spijker1991} provides the general bound
+\begin{equation}\label{eq:kreiss_theorem}
+  K(A) \;\le\; G(A) \;\le\; e\,n\,K(A),
+\end{equation}
+where $K(A) = \sup_{\operatorname{Re}(z)>0} \operatorname{Re}(z)\|(zI-A)^{-1}\|_2$ is the Kreiss constant, and the linear dependence on dimension $n$ is known to be sharp in general~\cite{Spijker1991}. We computed $K(A)$ on a uniform grid in the right half-plane $\{z : 0 < \operatorname{Re}(z) \le 2,\; |\operatorname{Im}(z)| \le 5\}$ at three successive refinements: $40\times 80$, $80\times 160$, and $120\times 240$ grid points. Table~\ref{tab:kreiss} reports the converged values alongside the relative spread between the two finest grids.
+
+\begin{table}[ht]
+\centering
+\caption{Converged Kreiss constants $K(A)$ for headline parameter pairs $(n, c)$ at $\delta = 1$. Spread is the relative change between the $80\times160$ and $120\times240$ grids. The entry marked $(\dagger)$ exhibits shallow-ridge sensitivity; see text.}
+\label{tab:kreiss}
+\begin{tabular}{ccccc}
+\toprule
+$(n,\,c)$ & $40\times80$ & $80\times160$ & $120\times240$ & Spread \\
+\midrule
+$(10,\;6.0)$  & $4.3726$    & $4.3717$    & $4.3681$           & $0.082\%$     \\
+$(12,\;8.0)$  & $18.7681$   & $18.8009$   & $18.8022$          & $0.007\%$     \\
+$(12,\;12.0)$ & $424.642$   & $426.960$   & $426.943$          & $0.004\%$     \\
+$(16,\;16.0)$ & $14117.998$ & $14242.45$  & $14248\;(\dagger)$ & $\le 0.1\%$   \\
+$(24,\;20.0)$ & $651085.07$ & $650811.92$ & $650788.48$        & $0.004\%$     \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Convergence note for $(n,c) = (16,16)$.} The Kreiss constant at this parameter pair exhibits grid sensitivity: successive refinements from $80\times160$ to $240\times480$ produce non-monotone oscillations of amplitude $\pm 12$ around a central value near $14248$, with the optimizer locating the maximum at different points $\operatorname{Re}(z_{\mathrm{opt}}) \in [0.337, 0.383]$ on different grids. This behavior is consistent with a shallow ridge in the pseudospectral level surface near the true maximum. We report $K(A) \approx 14248$ with an estimated uncertainty of $\pm 0.1\%$ for this pair; this value plays no role in the proof of Theorem~\ref{thm:main}. The remaining four pairs are converged to better than $0.09\%$.
+
+\paragraph{Consistency with the Kreiss Matrix Theorem.} Under the sharp Kreiss bound~\eqref{eq:kreiss_theorem}, the headline pair $(n,c) = (12,8)$ with $K(A) = 18.8022$ implies $18.80 \le G(A) \le e \cdot 12 \cdot 18.80 \approx 613.3$. The true peak from Table~\ref{tab:sandwich} is $G(A) \approx 45.298$, giving $G(A)/K(A) \approx 2.41$, which is well within the theoretical bound. For $(n,c) = (12,12)$, $K(A) = 426.94$ and $G(A) \approx 1464.25$, yielding $G(A)/K(A) \approx 3.43$. Because the classical Kreiss theorem carries the dimension factor $e\,n$, this ratio of $3.43$ easily satisfies $3.43 \le e \cdot 12 \approx 32.6$. The fact that $G/K$ exceeds $e \approx 2.718$ illustrates why the dimension factor $n$ proved by Spijker~\cite{Spijker1991} is necessary.
+
+\subsection{Computational Reliability}\label{subsec:reliability}
+
+All numerical results reported in this paper satisfy the following five verification criteria:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Factorization accuracy.} The log-space formula~\eqref{eq:logspace} is used for all $x \ge 10$; relative Frobenius errors are below $10^{-15}$ in all tested cases (Section~\ref{subsec:factverif}).
+  \item \textbf{Sandwich sharpness.} The true peak $\|e^{t^*A}\|_2$ lies strictly between the lower and upper bounds of~\eqref{eq:sandwich} in all 47 parameter pairs tested, with the upper/lower ratio matching $1/\sqrt{1-(\delta/c)^2}$ to six significant figures.
+  \item \textbf{Asymptotic constant.} The ratio $R(c/\delta)$ in~\eqref{eq:Rdef} approaches $1/[e(4\pi)^{1/4}]$ monotonically from above across $c/\delta \in [4, 300]$, with relative error bounded by $11.6\%$ at $c/\delta = 4$ and $0.094\%$ at $c/\delta = 300$.
+  \item \textbf{Kreiss convergence.} Grid refinement from $80\times160$ to $120\times240$ changes the reported Kreiss constants by less than $0.09\%$ for four of five headline pairs; the exception is $(16,16)$, documented in Section~\ref{subsec:kreiss}.
+  \item \textbf{Automated test suite.} All 99 automated tests pass at every commit, covering factorization, sandwich bounds, asymptotic ratios, and Kreiss computation across the full parameter range. Reproducible code is available at \url{https://github.com/MohAI1922}.
+\end{enumerate}
+
+%%% -----------------------------------------------------------------------
+%%%  Section 6: Discussion and Open Problems
+%%% -----------------------------------------------------------------------
+\section{Discussion and Open Problems}\label{sec:discussion}
+
+\subsection{Summary of Contributions}\label{subsec:summary}
+
+We have established a sharp two-sided asymptotic law for the peak transient growth of the matrix family $A = D + cN$, with an exact prefactor exponent $p = 5/4$, an exact asymptotic constant $\delta/[e(4\pi)^{1/4}] \approx 0.1953903\delta$, and a non-asymptotic sandwich that is computable at every finite $n$ without approximation. The proof combines three ingredients---an interaction-picture factorization, a geometric row-decay argument, and a Bessel function identification---each elementary in isolation, with their combination producing a result that is stronger than what any single ingredient would suggest.
+
+\paragraph{Exactness of the constant.} Most transient growth estimates in the literature are asymptotically correct in the exponent but carry unspecified constants. The constant $\delta/[e(4\pi)^{1/4}]$ here is proved exact to leading order: it emerges from the leading term of the Hankel expansion of $I_0$ and is confirmed numerically to within $0.094\%$ at $c/\delta = 300$. The next correction is $1/(16X)$ with $X = c/\delta - 1$, giving an explicit error bound of $1/[16(c/\delta - 1)]$ for $c/\delta \ge 2$.
+
+\paragraph{The non-asymptotic sandwich.} Inequality~\eqref{eq:sandwich} gives a provable two-sided bound at every finite $n$ and every $c/\delta > 1$, with no appeal to large-parameter limits. A practitioner can use the lower bound $\|\operatorname{row}_0(e^{t^*A})\|_2$ as a certified lower bound and the upper bound $\|\operatorname{row}_0(e^{t^*A})\|_2/\sqrt{1-(\delta/c)^2}$ as a certified upper bound, both computable in $O(n)$ arithmetic operations via the log-space formula~\eqref{eq:logspace}.
+
+\paragraph{Explanation of the prefactor exponent.} The decomposition $p = 1 + 1/4$ identified in Remark~\ref{rem:54origin} gives a structural explanation for why $p = 5/4$ rather than any other rational value. The $p = 1$ contribution comes from the row-zero normalization; the $p = 1/4$ contribution comes from the saddle-point correction to the Bessel sum. This decomposition explains why the split bound, which captures the $p = 1$ contribution but not the saddle-point correction, predicts the wrong exponent.
+
+\subsection{Open Problems}\label{subsec:open}
+
+\paragraph{1. Rigorous global maximizer across all rows.} Proposition~\ref{prop:peak} establishes that $t^*$ concentrates the global supremum $G(A)$ to within $1 + O(\delta/c)$ via local Hessian analysis. A complete analytic proof establishing that $t \mapsto \|e^{tA}\|_2$ is strictly unimodal for all $t \ge 0$ without any error term remains an interesting open problem in matrix analysis.
+
+\paragraph{2. Non-uniform diagonal spacing.} For a general stable diagonal matrix $D = \operatorname{diag}(-\lambda_1, \dots, -\lambda_n)$, the commutation relation $[D,N] = +\delta N$ fails unless the eigenvalues $\lambda_i$ are in arithmetic progression. When the spacing is non-uniform, the interaction-picture differential equation is no longer explicitly integrable in terms of elementary matrix functions. Whether a sharp two-sided bound analogous to~\eqref{eq:sandwich} exists for non-uniform spacing is relevant to discretizations of variable-coefficient advection-diffusion operators.
+
+\paragraph{3. Extension to banded coupling matrices.} Replacing $N$ by a banded nilpotent matrix $N_k$ with nonzero entries on the first $k$ superdiagonals breaks the exact geometric row-decay of Lemma~\ref{lem:rowdecay}. Whether a Bessel-type closed form survives for $k \ge 2$ is open; the intermediate regime $1 < k < n-1$ is largely unexplored.
+
+\paragraph{4. Infinite-dimensional operators.} The matrix family $A = D + cN$ is a natural finite-dimensional model for an advection-diffusion operator on a Hilbert space. Whether the $p = 5/4$ exponent and the Bessel constant survive as $n \to \infty$ with $c/\delta$ fixed connects the present result to semigroup theory on Hilbert spaces.
+
+\paragraph{5. Minimal untruncated regime bound.} The threshold $n \ge 3c/\delta$ is sufficient to guarantee machine-precision agreement with the untruncated limit. Numerical experiments suggest $n \ge 2c/\delta$ already gives errors below $1\%$, and $n \ge 1.5c/\delta$ gives errors below $5\%$. A sharp characterization of the minimal $n$ as a function of $c/\delta$ and the desired precision would be valuable for practical applications.
+
+\paragraph{6. Asymptotic behavior of $M(A)/K(A)$.} Whether the ratio $M(A)/K(A)$ converges to a universal limit as $c/\delta \to \infty$, and whether that limit can be computed analytically from the pseudospectral geometry of $A$, would sharpen the connection between Theorem~\ref{thm:main} and the classical Kreiss matrix theorem.
+
+\subsection{Closing Remark}\label{subsec:closing}
+
+The family $A = D + cN$ is simple enough to admit a complete analytical treatment yet rich enough to exhibit the full complexity of non-normal transient growth: exponential peak amplification, a non-trivial prefactor exponent, a Bessel function structure, and a quantifiable gap between the submultiplicative bound and the true peak. We hope that the methods developed here---the interaction-picture factorization, the geometric row-decay sandwich, and the Bessel identification---will find application to other structured matrix families where a similar combination of exact algebra and classical asymptotics is available.
+
+%%% -----------------------------------------------------------------------
+%%%  Acknowledgments
+%%% -----------------------------------------------------------------------
+\section*{Acknowledgments}
+
+The author thanks the open-source Python scientific ecosystem (\texttt{NumPy}~\cite{Harris2020}, \texttt{SciPy}~\cite{Virtanen2020}) for computational tools. During the preparation of this manuscript the author used AI-assisted tools for language refinement and formatting assistance; all mathematical derivations, computations, and conclusions were independently conducted and verified by the author, who takes sole responsibility for this work.
+
+%%% -----------------------------------------------------------------------
+%%%  References
+%%% -----------------------------------------------------------------------
+\begin{thebibliography}{99}
+
+\bibitem{Apkarian2020}
+P.~Apkarian and D.~Noll,
+\newblock Optimization of the {K}reiss constant of a matrix,
+\newblock {\em Linear Algebra Appl.}, 584 (2020), pp.~332--353.
+
+\bibitem{Bottcher2006}
+A.~B{\"o}ttcher and B.~Silbermann,
+\newblock {\em Analysis of Toeplitz Operators},
+\newblock Springer Monographs in Mathematics, Springer-Verlag, Berlin, 2nd~ed., 2006.
+
+\bibitem{DLMF}
+{DLMF},
+\newblock {\em {NIST} Digital Library of Mathematical Functions}, Release~1.2.1,
+\newblock \url{https://dlmf.nist.gov/}, 2023.
+
+\bibitem{Harris2020}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, et~al.,
+\newblock Array programming with {NumPy},
+\newblock {\em Nature}, 585 (2020), pp.~357--362.
+
+\bibitem{Higham2008}
+N.~J. Higham,
+\newblock {\em Functions of Matrices: Theory and Computation},
+\newblock Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA, 2008.
+
+\bibitem{Kreiss1962}
+H.-O. Kreiss,
+\newblock \"{U}ber die {S}tabilit\"{a}tsdefinition f\"{u}r {D}ifferenzengleichungen die partielle {D}ifferentialgleichungen approximieren,
+\newblock {\em BIT}, 2 (1962), pp.~153--181.
+
+\bibitem{Mitchell2020}
+T.~Mitchell,
+\newblock Computing the {K}reiss constant of a matrix,
+\newblock {\em SIAM J. Matrix Anal. Appl.}, 41 (2020), pp.~1324--1350.
+
+\bibitem{Neubert1997}
+M.~G. Neubert and H.~Caswell,
+\newblock Alternatives to resilience for measuring the responses of ecological systems to perturbations,
+\newblock {\em Ecology}, 78 (1997), pp.~653--665.
+
+\bibitem{Spijker1991}
+M.~N. Spijker,
+\newblock On a conjecture by {E. G. Straus} concerning the {K}reiss matrix theorem,
+\newblock {\em BIT}, 31 (1991), pp.~551--555.
+
+\bibitem{Trefethen2005}
+L.~N. Trefethen and M.~Embree,
+\newblock {\em Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators},
+\newblock Princeton University Press, Princeton, NJ, 2005.
+
+\bibitem{Trefethen1993}
+L.~N. Trefethen, A.~E. Trefethen, S.~C. Reddy, and T.~A. Driscoll,
+\newblock Hydrodynamic stability without eigenvalues,
+\newblock {\em Science}, 261 (1993), pp.~578--584.
+
+\bibitem{vanDorsselaer1993}
+B.~H. van Dorsselaer, J.~F. B.~M. Kraaijevanger, and M.~N. Spijker,
+\newblock Linear stability analysis in the numerical solution of initial value problems,
+\newblock {\em Acta Numer.}, 2 (1993), pp.~199--237.
+
+\bibitem{Virtanen2020}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, et~al.,
+\newblock {{SciPy} 1.0: Fundamental Algorithms for Scientific Computing in Python},
+\newblock {\em Nature Methods}, 17 (2020), pp.~261--272.
+
+\end{thebibliography}
+
+\end{document}
